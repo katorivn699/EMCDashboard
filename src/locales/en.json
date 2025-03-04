@@ -1,0 +1,54 @@
+{
+  "home": "Home",
+  "about": "About",
+  "welcome": "Welcome to our website!",
+  "sidebar": {
+    "app": "Application",
+    "home": "Home",
+    "about": "About",
+    "tasks": "Task",
+    "search": "Search",
+    "settings": "Settings",
+    "tools": "Tools"
+  },
+  "about_page": {
+    "introduction": "Introduction to EMC",
+    "description": "An intelligent team management system, synchronized with Discord Bot.",
+    "feat_title_1": "Team Management",
+    "feat_des_1": "Create projects, assign tasks easily, and track team progress.",
+    "feat_title_2": "Deadline Tracking",
+    "feat_des_2": "The bot will remind you of upcoming deadlines to ensure progress.",
+    "feat_title_3": "Flexible Customization",
+    "feat_des_3": "Configure the system to fit your team's specific needs.",
+    "smart_management": "Smart management",
+    "start_now": "Start now",
+    "docs": "Documentation"
+  },
+  "tasks": {
+    "id": "ID",
+    "title": "Task list",
+    "name": "Name",
+    "status": "Status",
+    "deadline": "Deadline",
+    "actions": "Actions",
+    "viewDetails": "View detail",
+    "markComplete": "Complete task",
+    "support": "Support",
+    "assignedTime": "Assign time",
+    "assigner": "Assigner",
+    "statusOptions": {
+      "not_started": "Not Started",
+      "in_progress": "In Progress",
+      "review": "In Review",
+      "completed": "Completed"
+    }
+  },
+  "login": {
+    "no_code": "No authentication code received from Discord!",
+    "auth_failed": "Discord login failed!",
+    "invalid_user_data": "User data from Discord is invalid!",
+    "server_error": "An error occurred on the server!",
+    "no_auth": "No login permission!",
+    "unknown_error": "An unknown error occurred!"
+  }
+}

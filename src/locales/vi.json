@@ -1,0 +1,54 @@
+{
+  "home": "Trang chủ",
+  "about": "Giới thiệu",
+  "welcome": "Chào mừng đến với trang web của chúng tôi!",
+  "sidebar": {
+    "app": "Ứng dụng",
+    "home": "Trang chủ",
+    "about": "Giới thiệu",
+    "tasks": "Công việc",
+    "search": "Tìm kiếm",
+    "settings": "Cài đặt",
+    "tools": "Công cụ"
+  },
+  "about_page": {
+    "introduction": "Giới thiệu về EMC",
+    "description": "Hệ thống quản lý nhóm thông minh, đồng bộ với Discord Bot.",
+    "feat_title_1": "Quản lý nhóm",
+    "feat_des_1": "Tạo dự án, phân công công việc dễ dàng, theo dõi tiến độ nhóm.",
+    "feat_title_2": "Theo dõi Deadline",
+    "feat_des_2": "Bot sẽ nhắc nhở công việc sắp hết hạn để đảm bảo tiến độ.",
+    "feat_title_3": "Tùy chỉnh linh hoạt",
+    "feat_des_3": "Cấu hình hệ thống theo nhu cầu riêng của nhóm bạn.",
+    "smart_management": "Quản lý nhóm thông minh",
+    "start_now": "Bắt đầu ngay",
+    "docs": "Tài liệu"
+  },
+  "tasks": {
+    "id": "ID",
+    "title": "Danh sách công việc",
+    "name": "Tên công việc",
+    "status": "Trạng thái",
+    "deadline": "Hạn chót",
+    "actions": "Hành động",
+    "viewDetails": "Xem chi tiết",
+    "markComplete": "Hoàn thành công việc",
+    "support": "Hỗ trợ",
+    "assignedTime": "Thời gian giao việc",
+    "assigner": "Người giao",
+    "statusOptions": {
+      "not_started": "Chưa bắt đầu",
+      "in_progress": "Đang làm",
+      "review": "Đang duyệt",
+      "completed": "Hoàn thành"
+    }
+  },
+  "login": {
+    "no_code": "Không nhận được mã xác thực từ Discord!",
+    "auth_failed": "Đăng nhập Discord thất bại!",
+    "invalid_user_data": "Dữ liệu người dùng từ Discord không hợp lệ!",
+    "server_error": "Có lỗi xảy ra trên server!",
+    "no_auth": "Không có quyền đăng nhập!",
+    "default_error": "Đã xảy ra lỗi không xác định!"
+  }
+}
