@@ -1,18 +1,20 @@
 // app/api/auth/callback/route.ts
 import { generateToken } from "@/lib/auth";
 import { connectDB } from "@/lib/mongodb";
-import UserAuthorization from "@/model/UserAuthorization";
+import UserAuthorization from "@/entity/UserAuthorization";
 import { NextRequest, NextResponse } from "next/server";
+import User from "@/entity/User";
 
 export async function GET(req: NextRequest) {
   try {
     const { searchParams } = new URL(req.url);
     const code = searchParams.get("code");
-    console.log("🚀 ~ GET ~ code:", code);
 
     if (!code) {
-      const response = NextResponse.redirect(new URL("/login", req.url).toString());
-      response.cookies.set("login_error", "no_code", { path: "/", maxAge: 60 }); // Lưu lỗi vào cookie tạm thời
+      const response = NextResponse.redirect(
+        new URL("/login", req.url).toString()
+      );
+      response.cookies.set("login_error", "no_code", { path: "/", maxAge: 60 }); 
       return response;
     }
 
@@ -32,11 +34,15 @@ export async function GET(req: NextRequest) {
     });
 
     const tokenData = await tokenResponse.json();
-    console.log("🚀 ~ GET ~ tokenData:", tokenData);
 
     if (!tokenData.access_token) {
-      const response = NextResponse.redirect(new URL("/login", req.url).toString());
-      response.cookies.set("login_error", "auth_failed", { path: "/", maxAge: 60 });
+      const response = NextResponse.redirect(
+        new URL("/login", req.url).toString()
+      );
+      response.cookies.set("login_error", "auth_failed", {
+        path: "/",
+        maxAge: 60,
+      });
       return response;
     }
 
@@ -46,19 +52,34 @@ export async function GET(req: NextRequest) {
       },
     });
     const userData = await userResponse.json();
-    console.log("🚀 ~ GET ~ userData:", userData);
 
     if (!userData.id) {
-      const response = NextResponse.redirect(new URL("/login", req.url).toString());
-      response.cookies.set("login_error", "invalid_user_data", { path: "/", maxAge: 60 });
+      const response = NextResponse.redirect(
+        new URL("/login", req.url).toString()
+      );
+      response.cookies.set("login_error", "invalid_user_data", {
+        path: "/",
+        maxAge: 60,
+      });
       return response;
     }
 
     await connectDB();
-    let userDB = await UserAuthorization.findOne({ userId: userData.id });
+    const userDB = await UserAuthorization.findOne({ userId: userData.id });
+    const userAccess = await User.findOne({ userId: userData.id });
 
     if (!userDB) {
-      const response = NextResponse.redirect(new URL("/login", req.url).toString());
+      const response = NextResponse.redirect(
+        new URL("/login", req.url).toString()
+      );
+      response.cookies.set("login_error", "no_auth", { path: "/", maxAge: 60 });
+      return response;
+    }
+
+    if (!userAccess) {
+      const response = NextResponse.redirect(
+        new URL("/login", req.url).toString()
+      );
       response.cookies.set("login_error", "no_auth", { path: "/", maxAge: 60 });
       return response;
     }
@@ -68,6 +89,7 @@ export async function GET(req: NextRequest) {
         id: userData.id,
         username: userData.username,
         avatar: userData.avatar || null,
+        role: userAccess.role
       },
       "1w"
     );
@@ -79,7 +101,9 @@ export async function GET(req: NextRequest) {
 
     await userDB.save();
 
-    const redirectResponse = NextResponse.redirect(new URL("/", req.url).toString());
+    const redirectResponse = NextResponse.redirect(
+      new URL("/", req.url).toString()
+    );
     redirectResponse.cookies.set("auth_token", accessToken, {
       path: "/",
       httpOnly: false,
@@ -90,8 +114,13 @@ export async function GET(req: NextRequest) {
     return redirectResponse;
   } catch (error) {
     console.error("Error in auth callback:", error);
-    const response = NextResponse.redirect(new URL("/login", req.url).toString());
-    response.cookies.set("login_error", "server_error", { path: "/", maxAge: 60 });
+    const response = NextResponse.redirect(
+      new URL("/login", req.url).toString()
+    );
+    response.cookies.set("login_error", "server_error", {
+      path: "/",
+      maxAge: 60,
+    });
     return response;
   }
 }

@@ -7,9 +7,16 @@
     "home": "Trang chủ",
     "about": "Giới thiệu",
     "tasks": "Công việc",
+    "projects": "Dự án",
+    "activitymanager": "Quản lí công việc",
     "search": "Tìm kiếm",
     "settings": "Cài đặt",
-    "tools": "Công cụ"
+    "tools": "Công cụ",
+    "shop": "Cửa hàng",
+    "minigame": "Tiểu trò chơi",
+    "administrator": "Admin quản lý",
+    "mines": "Quản lý quặng",
+    "items": "Quản lý vật phẩm"
   },
   "about_page": {
     "introduction": "Giới thiệu về EMC",
@@ -41,7 +48,22 @@
       "in_progress": "Đang làm",
       "review": "Đang duyệt",
       "completed": "Hoàn thành"
-    }
+    },
+    "calendar": {
+      "month": "Tháng",
+      "week": "Tuần",
+      "day": "Ngày",
+      "today": "Hôm nay"
+    },
+    "noData": "Không có dữ liệu",
+    "taskDetails": "Chi tiết công việc",
+    "basicsInfo": "Thông tin cơ bản",
+    "description": "Mô tả",
+    "deadlineTime": "Thời hạn",
+    "username": "Người nhận việc",
+    "projectName": "Tên dự án",
+    "relatedPerson": "Những người có liên quan",
+    "markReview": "Yêu cầu review"
   },
   "login": {
     "no_code": "Không nhận được mã xác thực từ Discord!",
@@ -49,6 +71,109 @@
     "invalid_user_data": "Dữ liệu người dùng từ Discord không hợp lệ!",
     "server_error": "Có lỗi xảy ra trên server!",
     "no_auth": "Không có quyền đăng nhập!",
-    "default_error": "Đã xảy ra lỗi không xác định!"
+    "default_error": "Đã xảy ra lỗi không xác định!",
+    "invalid_token": "Làm gì đấy, tính giả mạo admin à. cook??!!",
+    "invalid_signature": "Ờ ơi giả mạo chữ kí chi cho mệt vậy!!"
+  },
+  "ui": {
+    "verifying": "Đang kiểm tra quyền truy cập",
+    "search": "Tìm kiếm",
+    "profile": "Trang cá nhân",
+    "logout": "Đăng xuất"
+  },
+  "projects": {
+    "title": "Danh sách dự án",
+    "create": "Tạo mới",
+    "projectName": "Tên dự án",
+    "description": "Mô tả",
+    "createdAt": "Thời gian tạo",
+    "actions": "Hành động",
+    "update": "Cập nhật",
+    "delete": "Xoá",
+    "noData": "Không có dữ liệu",
+    "updateProject": "Cập nhật dự án",
+    "cancel": "Huỷ bỏ",
+    "save": "Lưu"
+  },
+  "messages": {
+    "noToken": "Không có token",
+    "noPermission": "Không có quyền",
+    "invalidToken": "Token không hợp lệ",
+    "noCode": "Không nhận được mã xác thực từ Discord",
+    "authFailed": "Đăng nhập Discord thất bại",
+    "invalidUserData": "Dữ liệu người dùng từ Discord không hợp lệ",
+    "serverError": "Có lỗi xảy ra trên server",
+    "noAuth": "Không có quyền đăng nhập",
+    "defaultError": "Đã xảy ra lỗi không xác định",
+    "invalidSignature": "Giả mạo chữ ký không được đâu nhé",
+    "missingId": "Thiếu ID của dự án",
+    "missingFields": "Vui lòng cung cấp đầy đủ thông tin",
+    "notFound": "Không tìm thấy dự án",
+    "updateSuccess": "Cập nhật thành công!",
+    "createSuccess": "Tạo thành công!",
+    "deleteSuccess": "Xoá thành công!"
+  },
+  "Shop": {
+    "title": "Cửa hàng Minigame",
+    "balance": "Số dư của bạn: {eCredit} eCredit",
+    "purchaseGuide": "Mua công cụ để sử dụng trong Minigame Đào Mỏ!",
+    "buy": "Mua",
+    "notEnoughECredit": "Không đủ eCredit",
+    "loginError": "Vui lòng đăng nhập để xem số dư",
+    "loginToBuyError": "Vui lòng đăng nhập để mua vật phẩm",
+    "fetchItemsError": "Không thể tải danh sách vật phẩm",
+    "fetchUserError": "Không thể tải dữ liệu người dùng",
+    "buyError": "Không thể mua vật phẩm",
+    "buySuccess": "Mua vật phẩm thành công! eCredit còn lại: {eCredit}",
+    "verifyDiscord": "Vui lòng xác minh tài khoản Discord",
+    "verifyDiscordDesc": "Đang chuyển hướng về trang chủ...",
+    "homeButton": "Trang chủ"
+  },
+  "items": {
+    "title": "Quản lý vật phẩm cửa hàng",
+    "itemId": "Mã vật phẩm",
+    "name": "Tên",
+    "description": "Mô tả",
+    "strength": "Sức mạnh",
+    "rarity": "Độ hiếm",
+    "sellValue": "Giá bán",
+    "durability": "Độ bền",
+    "actions": "Hành động",
+    "create": "Tạo vật phẩm",
+    "update": "Cập nhật",
+    "updateItem": "Cập nhật vật phẩm",
+    "delete": "Xóa",
+    "noData": "Không có vật phẩm nào",
+    "cancel": "Hủy",
+    "save": "Lưu",
+    "selectRarity": "Chọn độ hiếm"
+  },
+  "mines": {
+    "title": "Quản lý mỏ quặng",
+    "add_mine": "Thêm mỏ mới",
+    "mine_id": "Mine ID",
+    "mine_name": "Tên mỏ",
+    "durability": "Độ bền",
+    "resources": "Tài nguyên",
+    "actions": "Hành động",
+    "edit": "Chỉnh sửa",
+    "delete": "Xóa",
+    "save": "Lưu",
+    "random_resources": "Tài nguyên sẽ được tạo ngẫu nhiên khi lưu."
+  },
+  "miningGame": {
+    "title": "Trò Chơi Khai Thác",
+    "chooseMine": "Chọn Mỏ",
+    "chooseTool": "Chọn Công Cụ",
+    "noMines": "Không có mỏ nào",
+    "noTools": "Không có công cụ nào",
+    "inventory": "Kho Hàng của Bạn",
+    "noInventory": "Chưa có vật phẩm trong kho",
+    "error": "Lỗi",
+    "loginRequired": "Vui lòng đăng nhập để xem kho",
+    "selectMineItem": "Vui lòng chọn mỏ, công cụ và đảm bảo đã đăng nhập!",
+    "mining": "Đang Khai Thác...",
+    "resourcesCollected": "Tài Nguyên Thu Thập!",
+    "noResources": "Không thu thập được tài nguyên lần này."
   }
 }

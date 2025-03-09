@@ -1,18 +1,25 @@
-import { NextRequest, NextResponse } from "next/server";
-import jwt from "jsonwebtoken";
+import { verifyToken } from "@/lib/auth";
+import { JwtPayload } from "jsonwebtoken";
 
-export function verifyToken(req: NextRequest) {
-  const token = req.headers.get("Authorization")?.split(" ")[1];
+export function authenticateToken(req: Request, role: string[]) {
+  const authHeader = req.headers.get("authorization");
+  const token = authHeader && authHeader.split(" ")[1];
 
   if (!token) {
-    return NextResponse.json({ error: "Không có token!" }, { status: 401 });
+    return { error: "noToken", status: 401 };
   }
 
   try {
-    const decoded = jwt.verify(token, process.env.NEXT_PUBLIC_JWT_SECRET_KEY || "default_secret");
-    return decoded;
+    const decoded = verifyToken(token);
+    const userRole = (decoded as JwtPayload).role;
+
+    if (!role.includes(userRole)) {
+      return { error: "noPermission", status: 403 };
+    }
+
+    return { user: decoded, status: 200 };
   } catch (error) {
     console.log(error);
-    return NextResponse.json({ error: "Token không hợp lệ!" }, { status: 403 });
+    return { error: "invalidToken", status: 401 };
   }
 }

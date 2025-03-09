@@ -9,14 +9,14 @@ import { TopNav } from "@/components/app-topnav";
 import { Toaster } from "sonner";
 import ProtectedRoute from "@/components/route/ProtectedRoute";
 import { Roboto_Slab } from "next/font/google";
-
+import { getCookie } from "@/lib/utils";
 
 const robotoSlab = Roboto_Slab({
   subsets: ["vietnamese", "latin"],
   style: ["normal"],
   weight: ["400", "500", "600", "700"],
-  variable: "--font-roboto-slab"
-})
+  variable: "--font-roboto-slab",
+});
 
 export default function RootLayout({
   children,
@@ -26,6 +26,7 @@ export default function RootLayout({
   params: { locale: string };
 }) {
   const pathname = usePathname();
+  const sidebarState = getCookie("sidebar_state") === "true";
 
   const formatTitle = (path: string) => {
     if (path === "/") return "EMC Dashboard - Home";
@@ -48,23 +49,23 @@ export default function RootLayout({
         <LocaleProvider>
           {isLoginPage ? (
             // Chỉ hiển thị children khi ở trang login
-            (<>
+            <>
               <main>{children}</main>
               <Toaster position="top-center" richColors />
-            </>)
+            </>
           ) : (
-            <SidebarProvider>
-              <div className="flex w-full min-h-screen">
-                <AppSidebar />
-                <div className="flex flex-col flex-1">
-                  <TopNav />
-                  <ProtectedRoute>
+            <ProtectedRoute>
+              <SidebarProvider defaultOpen={sidebarState}>
+                <div className="flex w-full min-h-screen">
+                  <AppSidebar />
+                  <div className="flex flex-col flex-1">
+                    <TopNav />
                     <main>{children}</main>
-                  </ProtectedRoute>
-                  <Toaster position="bottom-right" richColors />
+                    <Toaster position="bottom-right" richColors />
+                  </div>
                 </div>
-              </div>
-            </SidebarProvider>
+              </SidebarProvider>
+            </ProtectedRoute>
           )}
         </LocaleProvider>
       </body>

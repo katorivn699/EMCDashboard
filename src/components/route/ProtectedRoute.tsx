@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
+import { useTranslations } from "next-intl";
 
 interface ProtectedRouteProps {
   children: React.ReactNode;
@@ -10,6 +11,7 @@ interface ProtectedRouteProps {
 export default function ProtectedRoute({ children }: ProtectedRouteProps) {
   const router = useRouter();
   const [isAuthenticated, setIsAuthenticated] = useState<boolean | null>(null);
+  const t = useTranslations("ui");
 
   useEffect(() => {
     const checkAuth = async () => {
@@ -32,7 +34,27 @@ export default function ProtectedRoute({ children }: ProtectedRouteProps) {
             Authorization: `Bearer ${token}`,
           },
         });
-        if(!resp.ok) return false;
+
+        if (!resp.ok) {
+          // Xử lý lỗi 401 từ redirect
+          const errorCookie = cookies.find((cookie) =>
+            cookie.startsWith("login_error=")
+          );
+          const errorValue = errorCookie ? errorCookie.split("=")[1] : null;
+          
+          // Xóa token
+          document.cookie =
+            "auth_token=; expires=Thu, 01 Jan 1970 00:00:00 GMT; path=/";
+          
+          let message = t("authentication_failed");
+          if (errorValue === "no_auth") message = t("no_token");
+          if (errorValue === "invalid_token") message = t("invalid_token");
+          if (errorValue === "invalid_signature") message = t("invalid_signature");
+
+          router.push("/login");
+          return;
+        }
+
         const data = await resp.json();
         const isValid = data.success === true;
         if (isValid) {
@@ -51,7 +73,7 @@ export default function ProtectedRoute({ children }: ProtectedRouteProps) {
     };
 
     checkAuth();
-  }, [router]);
+  }, [router, t]);
 
   if (isAuthenticated === null) {
     return (
@@ -78,7 +100,7 @@ export default function ProtectedRoute({ children }: ProtectedRouteProps) {
             />
           </svg>
           <p className="text-lg font-semibold text-gray-700 animate-pulse">
-            Đang kiểm tra quyền truy cập...
+            {t("verifying")}...
           </p>
         </div>
       </div>

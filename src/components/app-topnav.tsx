@@ -10,19 +10,21 @@ import {
   DropdownMenuItem,
 } from "@/components/ui/dropdown-menu";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
-import { ChevronDown, Search, Globe, User } from "lucide-react";
+import {
+  Breadcrumb,
+  BreadcrumbItem,
+  BreadcrumbLink,
+  BreadcrumbList,
+  BreadcrumbSeparator,
+} from "@/components/ui/breadcrumb"; // Import từ shadcn
+import { Search, Globe, User } from "lucide-react";
 import { useLocale } from "@/context/LocaleProvider";
 import { SidebarTrigger } from "./ui/sidebar";
 import { useEffect, useState } from "react";
 import { jwtDecode } from "jwt-decode";
 import getDiscordAvatar from "@/utils/discord";
-
-const getCookie = (name: string): string | null => {
-  const value = `; ${document.cookie}`;
-  const parts = value.split(`; ${name}=`);
-  if (parts.length === 2) return parts.pop()?.split(";").shift() || null;
-  return null;
-};
+import { useTranslations } from "next-intl";
+import { getCookie } from "@/lib/utils";
 
 const languages = [
   { code: "en", label: "English" },
@@ -33,13 +35,14 @@ export function TopNav() {
   const pathname = usePathname();
   const { locale, changeLocale } = useLocale();
   const [avatarUrl, setAvatarUrl] = useState("https://i.pravatar.cc/40");
+  const t = useTranslations("ui");
 
   useEffect(() => {
     const token = getCookie("auth_token");
 
     if (token) {
       try {
-        const decoded: any = jwtDecode(token); // Giải mã token
+        const decoded: any = jwtDecode(token);
         const avatarFromToken =
           getDiscordAvatar(decoded.id, decoded.avatar) ||
           "https://i.pravatar.cc/40";
@@ -58,18 +61,24 @@ export function TopNav() {
       {/* BREADCRUMB */}
       <div className="flex items-center gap-2 text-sm text-gray-600">
         <SidebarTrigger />
-        {breadcrumbs.map((crumb, index) => (
-          <span key={index} className="flex items-center gap-2">
-            <ChevronDown className="w-4 h-4" />
-            <span className="capitalize">{crumb}</span>
-          </span>
-        ))}
+        <Breadcrumb>
+          <BreadcrumbList>
+            {breadcrumbs.map((crumb, index) => (
+              <BreadcrumbItem key={index}>
+                <BreadcrumbLink className="capitalize">
+                  {crumb}
+                </BreadcrumbLink>
+                {index < breadcrumbs.length - 1 && <BreadcrumbSeparator />}
+              </BreadcrumbItem>
+            ))}
+          </BreadcrumbList>
+        </Breadcrumb>
       </div>
 
       {/* SEARCH BAR */}
       <div className="flex items-center gap-2 w-1/3">
         <Search className="w-5 h-5 text-gray-400" />
-        <Input type="text" placeholder="Search..." className="w-full" />
+        <Input type="text" placeholder={`${t("search")}...`} className="w-full" />
       </div>
 
       {/* LANGUAGE & PROFILE */}
@@ -102,16 +111,14 @@ export function TopNav() {
                 <AvatarImage src={avatarUrl} alt="User" />
                 <AvatarFallback>U</AvatarFallback>
               </Avatar>
-              <ChevronDown className="w-4 h-4" />
             </Button>
           </DropdownMenuTrigger>
           <DropdownMenuContent>
             <DropdownMenuItem>
               <User className="w-4 h-4 mr-2" />
-              Profile
+              {t("profile")}
             </DropdownMenuItem>
-            <DropdownMenuItem>Settings</DropdownMenuItem>
-            <DropdownMenuItem>Logout</DropdownMenuItem>
+            <DropdownMenuItem>{t("logout")}</DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>
       </div>

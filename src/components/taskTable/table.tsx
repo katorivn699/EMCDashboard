@@ -1,11 +1,12 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import {
   ColumnDef,
   flexRender,
   getCoreRowModel,
   useReactTable,
+  Row,
 } from "@tanstack/react-table";
 import {
   Table,
@@ -22,92 +23,133 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
 import { useTranslations } from "next-intl";
-import { MoreVertical } from "lucide-react";
+import { MoreVertical, Eye } from "lucide-react";
+import { toast } from "sonner";
+import { getCookie } from "@/lib/utils";
 
-// 📝 Dữ liệu mẫu (status sử dụng key của `statusOptions`)
-const tasks = [
-  {
-    id: 1,
-    name: "Thiết kế UI",
-    status: "in_progress",
-    deadline: "2025-03-10",
-    assignedTime: "2025-03-01",
-    assigner: "Nguyễn Văn A",
-  },
-  {
-    id: 2,
-    name: "Viết tài liệu API",
-    status: "completed",
-    deadline: "2025-03-05",
-    assignedTime: "2025-02-28",
-    assigner: "Trần Thị B",
-  },
-  {
-    id: 3,
-    name: "Tích hợp WebSocket",
-    status: "not_started",
-    deadline: "2025-03-15",
-    assignedTime: "2025-03-02",
-    assigner: "Lê Văn C",
-  },
-  {
-    id: 4,
-    name: "Kiểm tra API",
-    status: "review",
-    deadline: "2025-03-20",
-    assignedTime: "2025-03-03",
-    assigner: "Phạm Thị D",
-  },
-];
+// Định nghĩa interface cho Task
+interface Task {
+  _id: string;
+  name: string;
+  description: string;
+  status: "not_started" | "in_progress" | "review" | "completed";
+  deadline: string;
+  assignedTime: string;
+  assigner: { _id: string; username: string } | null;
+  projectId: { _id: string; projectName: string };
+  userId: { _id: string; username: string };
+}
 
 const TaskTable = () => {
   const t = useTranslations("tasks");
-  const [data] = useState(tasks);
+  const tMessages = useTranslations("messages");
+  const [data, setData] = useState<Task[]>([]);
+  const [selectedTask, setSelectedTask] = useState<Task | null>(null);
+  const [isDialogOpen, setIsDialogOpen] = useState(false);
+  const token = getCookie("auth_token");
+
+  // Fetch dữ liệu từ API
+  useEffect(() => {
+    const fetchTasks = async () => {
+      if (!token) {
+        toast.error(tMessages("noToken"));
+        return;
+      }
+      try {
+        const res = await fetch("/api/tasks", {
+          method: "GET",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+        });
+
+        if (!res.ok) {
+          throw new Error("Không thể tải danh sách công việc");
+        }
+
+        const resp = await res.json();
+        setData(resp.data);
+      } catch (error) {
+        console.error("Lỗi khi fetch tasks:", error);
+        toast.error(tMessages("serverError"), { duration: 5000 });
+      }
+    };
+
+    fetchTasks();
+  }, [token, tMessages]);
+
+  // Hàm cập nhật trạng thái task thành "review"
+  const markCompleteToReview = async (taskId: string) => {
+    if (!token) {
+      toast.error(tMessages("noToken"));
+      return;
+    }
+
+    try {
+      const res = await fetch(`/api/tasks/${taskId}`, {
+        method: "PATCH", // Hoặc PUT tùy API của bạn
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({ status: "review" }), // Gửi trạng thái mới
+      });
+
+      if (!res.ok) {
+        throw new Error("Không thể cập nhật trạng thái công việc");
+      }
+
+      // Cập nhật state local để hiển thị ngay mà không cần reload
+      setData((prevData) =>
+        prevData.map((task) =>
+          task._id === taskId ? { ...task, status: "review" } : task
+        )
+      );
+
+      toast.success(tMessages("updateSuccess"), { duration: 3000 });
+    } catch (error) {
+      console.error("Lỗi khi cập nhật trạng thái:", error);
+      toast.error(tMessages("serverError"), { duration: 5000 });
+    }
+  };
 
   const statusOptions = {
     not_started: {
       label: t("statusOptions.not_started"),
-      color: "bg-gray-100 text-gray-700",
+      color: "bg-gray-200 text-gray-800",
     },
     in_progress: {
       label: t("statusOptions.in_progress"),
-      color: "bg-yellow-100 text-yellow-700",
+      color: "bg-yellow-200 text-yellow-800",
     },
     review: {
       label: t("statusOptions.review"),
-      color: "bg-blue-100 text-blue-700",
+      color: "bg-blue-200 text-blue-800",
     },
     completed: {
       label: t("statusOptions.completed"),
-      color: "bg-green-100 text-green-700",
+      color: "bg-green-200 text-green-800",
     },
   };
 
-  const columns: ColumnDef<(typeof tasks)[number]>[] = [
+  const columns: ColumnDef<Task>[] = [
     {
-      accessorKey: "id", // Thêm cột id
-      header: t("id"), // Đảm bảo thêm key "id" vào file translations
+      accessorKey: "_id",
+      header: t("id"),
       cell: (info) => info.getValue(),
     },
     {
       accessorKey: "name",
       header: t("name"),
-      cell: (info) => info.getValue(),
-    },
-    {
-      accessorKey: "deadline",
-      header: t("deadline"),
-      cell: (info) => info.getValue(),
-    },
-    {
-      accessorKey: "assignedTime",
-      header: t("assignedTime"),
-      cell: (info) => info.getValue(),
-    },
-    {
-      accessorKey: "assigner",
-      header: t("assigner"),
       cell: (info) => info.getValue(),
     },
     {
@@ -126,31 +168,175 @@ const TaskTable = () => {
     {
       id: "actions",
       header: t("actions"),
-      cell: ({ row }) => (
-        <DropdownMenu>
-          <DropdownMenuTrigger asChild>
-            <Button size="icon" variant="ghost">
-              <MoreVertical size={18} />
-            </Button>
-          </DropdownMenuTrigger>
-          <DropdownMenuContent>
-            <DropdownMenuItem
-              onClick={() => alert(`Xem chi tiết: ${row.original.id}`)}
-            >
-              {t("viewDetails")}
-            </DropdownMenuItem>
-            <DropdownMenuItem
-              onClick={() => alert(`Hoàn thành: ${row.original.id}`)}
-            >
-              {t("markComplete")}
-            </DropdownMenuItem>
-            <DropdownMenuItem
-              onClick={() => alert(`Hỗ trợ: ${row.original.id}`)}
-            >
-              {t("support")}
-            </DropdownMenuItem>
-          </DropdownMenuContent>
-        </DropdownMenu>
+      cell: ({ row }: { row: Row<Task> }) => (
+        <div className="flex items-center gap-2">
+          {/* Nút xem chi tiết với DialogTrigger */}
+          <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
+            <DialogTrigger asChild>
+              <Button
+                size="icon"
+                variant="ghost"
+                onClick={() => {
+                  setSelectedTask(row.original);
+                  setIsDialogOpen(true);
+                }}
+                className="hover:bg-gray-100"
+              >
+                <Eye size={18} className="text-blue-600" />
+              </Button>
+            </DialogTrigger>
+            <DialogContent className="sm:max-w-[600px] bg-white rounded-lg shadow-lg p-6">
+              {selectedTask && (
+                <>
+                  <DialogHeader>
+                    <DialogTitle className="text-2xl font-semibold text-gray-800 mb-4">
+                      {t("taskDetails")}
+                    </DialogTitle>
+                  </DialogHeader>
+                  <div className="space-y-8">
+                    {/* Thông tin cơ bản */}
+                    <div className="space-y-4">
+                      <h3 className="text-lg font-medium text-gray-700 border-b border-gray-200 pb-2">
+                        {t("basicsInfo")}
+                      </h3>
+                      <div className="space-y-3">
+                        <p className="text-sm flex items-center">
+                          <strong className="text-gray-600 w-32">
+                            {t("id")}:
+                          </strong>
+                          <span className="text-gray-800">
+                            {selectedTask._id}
+                          </span>
+                        </p>
+                        <p className="text-sm flex items-center">
+                          <strong className="text-gray-600 w-32">
+                            {t("name")}:
+                          </strong>
+                          <span className="text-gray-800">
+                            {selectedTask.name}
+                          </span>
+                        </p>
+                        <p className="text-sm flex items-start">
+                          <strong className="text-gray-600 w-32">
+                            {t("description")}:
+                          </strong>
+                          <span className="text-gray-800 flex-1">
+                            {selectedTask.description || "Không có mô tả"}
+                          </span>
+                        </p>
+                      </div>
+                    </div>
+
+                    {/* Thời gian */}
+                    <div className="space-y-4">
+                      <h3 className="text-lg font-medium text-gray-700 border-b border-gray-200 pb-2">
+                        {t("deadlineTime")}
+                      </h3>
+                      <div className="space-y-3">
+                        <p className="text-sm flex items-center">
+                          <strong className="text-gray-600 w-32">
+                            {t("deadline")}:
+                          </strong>
+                          <span className="text-gray-800">
+                            {new Date(selectedTask.deadline).toLocaleString(
+                              "vi-VN"
+                            )}
+                          </span>
+                        </p>
+                        <p className="text-sm flex items-center">
+                          <strong className="text-gray-600 w-32">
+                            {t("assignedTime")}:
+                          </strong>
+                          <span className="text-gray-800">
+                            {new Date(selectedTask.assignedTime).toLocaleString(
+                              "vi-VN"
+                            )}
+                          </span>
+                        </p>
+                      </div>
+                    </div>
+
+                    {/* Người liên quan */}
+                    <div className="space-y-4">
+                      <h3 className="text-lg font-medium text-gray-700 border-b border-gray-200 pb-2">
+                        {t("relatedPerson")}
+                      </h3>
+                      <div className="space-y-3">
+                        <p className="text-sm flex items-center">
+                          <strong className="text-gray-600 w-32">
+                            {t("assigner")}:
+                          </strong>
+                          <span className="text-gray-800">
+                            {selectedTask.assigner?.username ||
+                              "Không có assigner"}
+                          </span>
+                        </p>
+                        <p className="text-sm flex items-center">
+                          <strong className="text-gray-600 w-32">
+                            {t("username")}:
+                          </strong>
+                          <span className="text-gray-800">
+                            {selectedTask.userId.username}
+                          </span>
+                        </p>
+                        <p className="text-sm flex items-center">
+                          <strong className="text-gray-600 w-32">
+                            {t("projectName")}:
+                          </strong>
+                          <span className="text-gray-800">
+                            {selectedTask.projectId.projectName}
+                          </span>
+                        </p>
+                      </div>
+                    </div>
+
+                    {/* Trạng thái */}
+                    <div className="space-y-4">
+                      <h3 className="text-lg font-medium text-gray-700 border-b border-gray-200 pb-2">
+                        {t("status")}
+                      </h3>
+                      <p className="text-sm flex items-center">
+                        <strong className="text-gray-600 w-32">
+                          {t("status")}:
+                        </strong>
+                        <span
+                          className={`inline-block px-3 py-1 rounded-full text-sm font-medium ${
+                            statusOptions[selectedTask.status].color
+                          }`}
+                        >
+                          {statusOptions[selectedTask.status].label}
+                        </span>
+                      </p>
+                    </div>
+                  </div>
+                </>
+              )}
+            </DialogContent>
+          </Dialog>
+
+          {/* DropdownMenu cho các hành động khác */}
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button size="icon" variant="ghost" className="hover:bg-gray-100">
+                <MoreVertical size={18} className="text-gray-600" />
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent>
+              {row.original.status === "in_progress" && (
+                <DropdownMenuItem
+                  onClick={() => markCompleteToReview(row.original._id)}
+                >
+                  {t("markReview")}
+                </DropdownMenuItem>
+              )}
+              <DropdownMenuItem
+                onClick={() => alert(`Hỗ trợ: ${row.original._id}`)}
+              >
+                {t("support")}
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
+        </div>
       ),
     },
   ];
@@ -180,17 +366,30 @@ const TaskTable = () => {
               </TableRow>
             ))}
           </TableHeader>
-
           <TableBody>
-            {table.getRowModel().rows.map((row) => (
-              <TableRow key={row.id}>
-                {row.getVisibleCells().map((cell) => (
-                  <TableCell key={cell.id}>
-                    {flexRender(cell.column.columnDef.cell, cell.getContext())}
-                  </TableCell>
-                ))}
+            {table.getRowModel().rows.length ? (
+              table.getRowModel().rows.map((row) => (
+                <TableRow key={row.id}>
+                  {row.getVisibleCells().map((cell) => (
+                    <TableCell key={cell.id}>
+                      {flexRender(
+                        cell.column.columnDef.cell,
+                        cell.getContext()
+                      )}
+                    </TableCell>
+                  ))}
+                </TableRow>
+              ))
+            ) : (
+              <TableRow>
+                <TableCell
+                  colSpan={columns.length}
+                  className="text-center py-4"
+                >
+                  {t("noData") || "Không có dữ liệu"}
+                </TableCell>
               </TableRow>
-            ))}
+            )}
           </TableBody>
         </Table>
       </div>

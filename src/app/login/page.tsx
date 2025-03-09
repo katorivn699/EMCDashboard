@@ -62,6 +62,12 @@ export default function LoginPage() {
         case "no_auth":
           errorMessage = t("no_auth");
           break;
+        case "invalid_token":
+          errorMessage = t("invalid_token");
+          break;
+        case "invalid_signature":
+          errorMessage = t("invalid_signature");
+          break;
         default:
           errorMessage = t("default_error");
       }

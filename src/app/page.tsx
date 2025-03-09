@@ -26,7 +26,7 @@ const COLORS = ["#0088FE", "#00C49F", "#FFBB28", "#FF8042"];
 
 export default function Home() {
   return (
-    <div className="flex flex-col items-center justify-center min-h-screen w-full p-6">
+    <div className="flex flex-col items-center justify-center min-h-screen p-6">
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 w-full max-w-6xl">
         {/* Biểu đồ đường */}
         <Card className="w-full max-w-[350px] mx-auto shadow-md">

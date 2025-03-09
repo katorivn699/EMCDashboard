@@ -29,7 +29,7 @@ export default function About() {
 
           {/* Hành động */}
           <div className="flex justify-center gap-4">
-            <Link href="/dashboard">
+            <Link href="/">
               <Button size="lg" className="bg-emerald-700 hover:bg-emerald-800">
                 🚀 {t("start_now")}
               </Button>
