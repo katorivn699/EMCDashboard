@@ -80,7 +80,8 @@
     "verifying": "Checking access permissions",
     "search": "Search",
     "profile": "Profile",
-    "logout": "Logout"
+    "logout": "Logout",
+    "authentication_failed": "Access authentication failed!"
   },
   "projects": {
     "title": "Project list",

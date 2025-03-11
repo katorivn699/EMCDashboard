@@ -80,7 +80,8 @@
     "verifying": "Đang kiểm tra quyền truy cập",
     "search": "Tìm kiếm",
     "profile": "Trang cá nhân",
-    "logout": "Đăng xuất"
+    "logout": "Đăng xuất",
+    "authentication_failed": "Xác thực quyền truy cập thất bại!"
   },
   "projects": {
     "title": "Danh sách dự án",

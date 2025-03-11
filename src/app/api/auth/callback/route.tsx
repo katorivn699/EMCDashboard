@@ -18,6 +18,8 @@ export async function GET(req: NextRequest) {
       return response;
     }
 
+    const redirectUrl = new URL("/api/auth/callback", req.url).toString();
+
     const tokenResponse = await fetch("https://discord.com/api/oauth2/token", {
       method: "POST",
       headers: {
@@ -28,7 +30,7 @@ export async function GET(req: NextRequest) {
         client_secret: `${process.env.NEXT_PUBLIC_DISCORD_CLIENT_SECRET}`,
         grant_type: "authorization_code",
         code: code,
-        redirect_uri: "http://localhost:3000/api/auth/callback",
+        redirect_uri: redirectUrl,
         scope: "identify",
       }),
     });
