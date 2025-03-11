@@ -70,6 +70,7 @@
     "auth_failed": "Đăng nhập Discord thất bại!",
     "invalid_user_data": "Dữ liệu người dùng từ Discord không hợp lệ!",
     "server_error": "Có lỗi xảy ra trên server!",
+    "no_discord_auth": "User đã được tạo nhưng chưa đăng nhập, vui lòng đăng nhập!",
     "no_auth": "Không có quyền đăng nhập!",
     "default_error": "Đã xảy ra lỗi không xác định!",
     "invalid_token": "Làm gì đấy, tính giả mạo admin à. cook??!!",

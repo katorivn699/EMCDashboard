@@ -68,6 +68,9 @@ export default function LoginPage() {
         case "invalid_signature":
           errorMessage = t("invalid_signature");
           break;
+        case "no_discord_auth":
+          errorMessage = t("no_discord_auth");
+          break;
         default:
           errorMessage = t("default_error");
       }

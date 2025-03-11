@@ -23,6 +23,12 @@ import Image from "next/image";
 import { getCookie } from "@/lib/utils";
 import { jwtDecode } from "jwt-decode";
 
+interface CustomJwtPayload {
+  id?: string;
+  role?: string;
+  [key: string]: any;
+}
+
 export function AppSidebar() {
   const t = useTranslations("sidebar");
   const menuGroups = getMenuItems(t);
@@ -31,14 +37,11 @@ export function AppSidebar() {
   const token = getCookie("auth_token");
   const [userRole, setUserRole] = useState<string | null>(null);
 
-  // Kiểm tra vai trò người dùng khi component mount
   useEffect(() => {
     if (token) {
       try {
-        const decoded = jwtDecode(token);
-        console.log("🚀 ~ useEffect ~ token:", token)
-        console.log("🚀 ~ useEffect ~ decoded:", decoded);
-        setUserRole(decoded.role); // Giả định token chứa role
+        const decoded = jwtDecode<CustomJwtPayload>(token); // Ép kiểu với CustomJwtPayload
+        setUserRole(decoded.role || null); // Truy cập role, mặc định null nếu không có
       } catch (err) {
         console.error("Error verifying token:", err);
         setUserRole(null);
@@ -68,7 +71,9 @@ export function AppSidebar() {
   const filteredMenuGroups = menuGroups.filter((item) => {
     if ("items" in item) {
       // Với nhóm, chỉ hiển thị nếu có ít nhất 1 sub-item được phép truy cập
-      const accessibleItems = item.items.filter((subItem) => hasAccess(subItem.roles));
+      const accessibleItems = item.items.filter((subItem) =>
+        hasAccess(subItem.roles)
+      );
       return accessibleItems.length > 0;
     } else {
       // Với item đơn, kiểm tra quyền trực tiếp

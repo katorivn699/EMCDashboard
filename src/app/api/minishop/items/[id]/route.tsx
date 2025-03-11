@@ -3,10 +3,10 @@ import { connectDB } from "@/lib/mongodb";
 import { authenticateToken } from "@/middleware/auth";
 import MinigameItem from "@/entity/MinigameItem";
 
-export async function PUT(
-  req: Request,
-  { params }: { params: { id: string } }
-) {
+// Định nghĩa kiểu cho context.params với Promise
+type RouteParams = { params: Promise<{ id: string }> };
+
+export async function PUT(req: Request, { params }: RouteParams) {
   try {
     await connectDB();
     const authResult = authenticateToken(req, ["admin"]);
@@ -17,8 +17,10 @@ export async function PUT(
       );
     }
 
+    // Await params để lấy đối tượng { id: string }
+    const resolvedParams = await params;
     const body = await req.json();
-    const updatedItem = await MinigameItem.findByIdAndUpdate(params.id, body, {
+    const updatedItem = await MinigameItem.findByIdAndUpdate(resolvedParams.id, body, {
       new: true,
     }).lean();
 
@@ -33,10 +35,7 @@ export async function PUT(
   }
 }
 
-export async function DELETE(
-  req: Request,
-  { params }: { params: { id: string } }
-) {
+export async function DELETE(req: Request, { params }: RouteParams) {
   try {
     await connectDB();
     const authResult = authenticateToken(req, ["admin"]);
@@ -47,7 +46,9 @@ export async function DELETE(
       );
     }
 
-    const deletedItem = await MinigameItem.findByIdAndDelete(params.id).lean();
+    // Await params để lấy đối tượng { id: string }
+    const resolvedParams = await params;
+    const deletedItem = await MinigameItem.findByIdAndDelete(resolvedParams.id).lean();
     if (!deletedItem) {
       return NextResponse.json({ message: "Item not found" }, { status: 404 });
     }

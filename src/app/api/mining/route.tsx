@@ -1,9 +1,9 @@
 import { NextResponse } from "next/server";
 import { connectDB } from "@/lib/mongodb";
 import { authenticateToken } from "@/middleware/auth";
-import Mine from "@/entity/Mine";
-import PlayerInventory from "@/entity/PlayerInventory";
-import MinigameItem from "@/entity/MinigameItem";
+import Mine, { IMine, IResource } from "@/entity/Mine";
+import PlayerInventory, { IPlayerInventory, IToolItem, IResourceItem } from "@/entity/PlayerInventory";
+import MinigameItem, { IMinigameItem } from "@/entity/MinigameItem";
 import { verifyToken } from "@/lib/auth";
 
 export async function POST(req: Request) {
@@ -20,11 +20,11 @@ export async function POST(req: Request) {
     const { mineId, itemId } = await req.json();
     const authHeader = req.headers.get("authorization");
     const token = authHeader?.split(" ")[1];
-    const decoded = verifyToken(token);
-    const playerId = decoded.id;
+    const decoded = token ? verifyToken(token) : null;
+    const playerId = decoded?.id;
 
     // Tìm mỏ
-    const mine = await Mine.findById(mineId);
+    const mine = (await Mine.findById(mineId)) as IMine | null;
     if (!mine) {
       return NextResponse.json(
         { message: "Mine not found" },
@@ -33,7 +33,7 @@ export async function POST(req: Request) {
     }
 
     // Tìm inventory của người chơi
-    const inventory = await PlayerInventory.findOne({ playerId });
+    const inventory = (await PlayerInventory.findOne({ playerId })) as IPlayerInventory | null;
     if (!inventory) {
       return NextResponse.json(
         { message: "Player inventory not found" },
@@ -42,7 +42,7 @@ export async function POST(req: Request) {
     }
 
     // Tìm công cụ trong inventory.tools
-    const toolIndex = inventory.tools.findIndex((t) => t._id.toString() === itemId);
+    const toolIndex = inventory.tools.findIndex((t: IToolItem) => t._id.toString() === itemId);
     if (toolIndex === -1) {
       return NextResponse.json(
         { message: "Tool not found in inventory" },
@@ -52,7 +52,7 @@ export async function POST(req: Request) {
     const tool = inventory.tools[toolIndex];
 
     // Tìm MinigameItem để lấy strength
-    const minigameItem = await MinigameItem.findOne({ itemId: tool.itemId });
+    const minigameItem = (await MinigameItem.findOne({ itemId: tool.itemId })) as IMinigameItem | null;
     if (!minigameItem) {
       return NextResponse.json(
         { message: "Tool details not found in MinigameItem" },
@@ -81,9 +81,9 @@ export async function POST(req: Request) {
 
     // Tính tài nguyên nhận được và tỷ lệ rơi
     const collectedResources: { resourceName: string; quantity: number }[] = [];
-    const dropRates: { resourceName: string; dropRate: number }[] = []; // Lưu tỷ lệ rơi
+    const dropRates: { resourceName: string; dropRate: number }[] = [];
 
-    mine.resources.forEach((resource) => {
+    mine.resources.forEach((resource: IResource) => {
       // Lưu tỷ lệ rơi của tài nguyên
       dropRates.push({
         resourceName: resource.resourceName,
@@ -93,7 +93,7 @@ export async function POST(req: Request) {
       // Tính toán khả năng nhận tài nguyên
       if (Math.random() < resource.dropRate / 100) {
         const existingResource = inventory.resources.find(
-          (r) => r.resourceName === resource.resourceName
+          (r: IResourceItem) => r.resourceName === resource.resourceName
         );
         if (existingResource) {
           existingResource.quantity += 1;

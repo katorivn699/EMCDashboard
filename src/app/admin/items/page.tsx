@@ -37,6 +37,7 @@ import { MoreVertical } from "lucide-react";
 import { getCookie } from "@/lib/utils";
 import { jwtDecode } from "jwt-decode";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { JwtPayload } from "@/types/interfaces";
 
 interface MinigameItem {
   _id: string;
@@ -49,10 +50,6 @@ interface MinigameItem {
   durability: number;
 }
 
-interface JwtPayload {
-  role: string;
-  [key: string]: unknown;
-}
 
 // Danh sách độ hiếm cố định
 const RARITY_OPTIONS = [

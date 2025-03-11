@@ -30,6 +30,8 @@ import { useTranslations } from "next-intl";
 import { getCookie } from "@/lib/utils";
 import { toast } from "sonner";
 import { verifyToken } from "@/lib/auth"; // Import verifyToken
+import { jwtDecode } from "jwt-decode";
+import { JwtPayload } from "@/types/interfaces";
 
 interface IResource {
   resourceName: string;
@@ -62,11 +64,15 @@ export default function MinePage() {
 
   useEffect(() => {
     fetchMines();
-    // Kiểm tra vai trò khi component mount
+
     if (token) {
       try {
-        const decoded = verifyToken(token);
-        setIsAdmin(decoded.role === "admin"); // Giả định token chứa role
+        const decoded = jwtDecode<JwtPayload>(token);
+        if (decoded && decoded.role) {
+          setIsAdmin(decoded.role === "admin");
+        } else {
+          setIsAdmin(false);
+        }
       } catch (err) {
         console.error("Error verifying token:", err);
         setIsAdmin(false);
@@ -122,7 +128,7 @@ export default function MinePage() {
         mineDurability: 0,
       });
       setIsOpen(false);
-      toast.success(t("add_mine_success"));
+      toast.success(tMess("createSuccess"));
     } catch (err) {
       toast.error((err as Error).message);
     }
@@ -149,7 +155,7 @@ export default function MinePage() {
         throw new Error(tMess(errorMessage));
       }
       fetchMines();
-      toast.success(t("deleteSuccess"));
+      toast.success(tMess("deleteSuccess"));
     } catch (err) {
       toast.error((err as Error).message);
     }

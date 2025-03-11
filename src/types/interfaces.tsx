@@ -4,3 +4,7 @@ export interface project {
     description: string,
     createdAt: Date
 }
+export interface JwtPayload {
+    role: string;
+    [key: string]: unknown;
+  }

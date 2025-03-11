@@ -1,9 +1,10 @@
 import { NextResponse } from "next/server";
 import { connectDB } from "@/lib/mongodb";
 import { authenticateToken } from "@/middleware/auth";
-import PlayerInventory from "@/entity/PlayerInventory";
-import MinigameItem from "@/entity/MinigameItem";
+import PlayerInventory, { IPlayerInventory } from "@/entity/PlayerInventory";
+import MinigameItem, { IMinigameItem } from "@/entity/MinigameItem";
 import { verifyToken } from "@/lib/auth";
+import UserAuthorization, { IUserAuthorization } from "@/entity/UserAuthorization";
 
 export async function GET(req: Request) {
   try {
@@ -19,11 +20,30 @@ export async function GET(req: Request) {
     const authHeader = req.headers.get("authorization");
     const token = authHeader?.split(" ")[1];
 
-    const decoded = verifyToken(token);
-    const playerId = decoded.id;
+    const decoded = token ? verifyToken(token) : null;
+    const playerId = decoded?.id;
+
+    // Tìm thông tin người dùng từ UserAuthorization
+    const user = (await UserAuthorization.findOne({ userId: playerId }).lean()) as IUserAuthorization | null;
+
+    // Kiểm tra nếu user không tồn tại hoặc isLogin là false
+    if (!user || !user.isLogin) {
+      return NextResponse.json(
+        { message: "Please log in to access this resource" },
+        {
+          status: 401, // Unauthorized
+          headers: {
+            Location: "/", // Chuyển hướng về trang chủ
+          },
+        }
+      );
+    }
+
 
     // Tìm kho của người chơi
-    const inventory = await PlayerInventory.findOne({ playerId }).lean();
+    const inventory = (await PlayerInventory.findOne({
+      playerId,
+    }).lean()) as IPlayerInventory | null;
     if (!inventory) {
       return NextResponse.json({
         message: "Inventory not found, starting fresh",
@@ -40,9 +60,14 @@ export async function GET(req: Request) {
     const toolItemIds = inventory.tools.map((tool) => tool.itemId);
 
     // Tra cứu MinigameItem dựa trên itemId
-    const minigameItems = await MinigameItem.find({ itemId: { $in: toolItemIds } })
-      .select("itemId name strength") // Lấy các field cần thiết
-      .lean();
+    const minigameItems = (await MinigameItem.find({
+      itemId: { $in: toolItemIds },
+    })
+      .select("itemId name strength")
+      .lean()) as unknown as Pick<
+      IMinigameItem,
+      "itemId" | "name" | "strength"
+    >[];
 
     // Gộp thông tin từ MinigameItem vào tools
     const toolsWithDetails = inventory.tools.map((tool) => {

@@ -14,3 +14,11 @@ export function getCookie(name: string) {
   if (parts.length === 2) return parts.pop()?.split(";").shift() || null;
   return null;
 }
+
+export function deleteCookie(name: string) {
+  if (typeof window === "undefined") {
+    return;
+  }
+  document.cookie = `${name}=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/`;
+}
+

@@ -1,23 +1,24 @@
-// utils/jwt.ts
-import jwt from "jsonwebtoken";
+import jwt, { SignOptions } from "jsonwebtoken";
 
 // Đảm bảo secret key được định nghĩa, nếu không có thì dùng giá trị mặc định
 const JWT_SECRET = process.env.NEXT_PUBLIC_JWT_SECRET_KEY || "default_secret";
 
-// Định nghĩa interface cho payload (tùy chọn, để có type safety)
+// Định nghĩa interface cho payload với kiểu cụ thể hơn
 interface TokenPayload {
-  [key: string]: any; 
+  [key: string]: unknown; // Thay any bằng unknown để an toàn hơn
   id?: string | number; // Ví dụ: ID người dùng
   username?: string; // Ví dụ: Tên người dùng
+  iat?: number; // Thêm iat để tránh lỗi khi decode
+  exp?: number; // Thêm exp để tránh lỗi khi decode
 }
 
-// 1. Tạo Access Token
 export function generateToken(
   payload: TokenPayload,
-  expiresIn: string = "1h" // Thời gian hết hạn mặc định là 1 giờ
+  expiresIn: string | number = "7d"
 ): string {
   try {
-    return jwt.sign(payload, JWT_SECRET, { expiresIn });
+    const options: SignOptions = { expiresIn: expiresIn as unknown as number }; // Ép kiểu rõ ràng
+    return jwt.sign(payload, JWT_SECRET, options);
   } catch (error) {
     console.error("Error generating token:", error);
     throw new Error("Could not generate token");
@@ -64,15 +65,17 @@ export function refreshToken(
   if (!decoded) return null;
 
   // Loại bỏ các thuộc tính không cần thiết (iat, exp) trước khi tạo token mới
-  const { iat, exp, ...payload } = decoded;
+  const { iat: _iat, exp: _exp, ...payload } = decoded; // Sử dụng _ để bỏ qua iat, exp
   return generateToken(payload, newExpiresIn);
 }
 
-// Export mặc định nếu cần
-export default {
+// Gán object vào biến trước khi export
+const authUtils = {
   generateToken,
   verifyToken,
   decodeToken,
   isTokenExpired,
   refreshToken,
 };
+
+export default authUtils;

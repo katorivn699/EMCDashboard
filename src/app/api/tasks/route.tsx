@@ -10,7 +10,7 @@ async function ensureDbConnected() {
   await connectDB();
 }
 
-export async function GET(req) {
+export async function GET(req: Request) {
   const authResult = authenticateToken(req, ["manager", "admin", "member"]);
   if (authResult.error) {
     return NextResponse.json(
@@ -31,8 +31,7 @@ export async function GET(req) {
     await ensureDbConnected();
 
     const decoded = verifyToken(token);
-    userIdToken = decoded.id || decoded._id;
-    console.log("Decoded user ID:", userIdToken);
+    userIdToken = decoded?.id || decoded?._id;
 
     const user = await User.findOne({ userId: userIdToken }).lean(); // Dùng _id nếu token trả về _id
     if (!user) {

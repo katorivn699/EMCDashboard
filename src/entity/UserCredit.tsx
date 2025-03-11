@@ -1,11 +1,10 @@
-import { Schema, model, Document, models } from "mongoose";
+import { Schema, model, Document, models, Types } from "mongoose";
 
-// Định nghĩa interface cho UserCredit document
-interface IUserCredit extends Document {
-  userId: string; // ID của người chơi
-  guildId: string; // ID của guild (nếu là game multiplayer)
-  eCredit: number; // Thay cho currency
-  achievements: string[]; // Danh sách thành tựu
+export interface IUserCredit extends Document {
+  userId: string;
+  guildId: string;
+  eCredit: number;
+  achievements: string[];
   lastUpdated: Date;
 }
 

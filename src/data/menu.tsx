@@ -45,8 +45,8 @@ export const getMenuItems = (t: (key: string) => string): (MenuItem | MenuGroup)
     label: t("activitymanager"),
     defaultOpen: false,
     items: [
-      { title: t("projects"), url: "/projects", icon: Folder, roles: ["admin", "manager"] },
-      { title: t("tasks"), url: "/tasks", icon: Calendar, roles: ["admin", "manager"] },
+      { title: t("projects"), url: "/projects", icon: Folder, roles: ["admin", "manager", "member"] },
+      { title: t("tasks"), url: "/tasks", icon: Calendar, roles: ["admin", "manager", "member"] },
     ],
   },
   {

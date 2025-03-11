@@ -1,20 +1,32 @@
 import mongoose from "mongoose";
 
-const MONGODB_URI = process.env.NEXT_PUBLIC_MONGODB_URI|| "";
+// Định nghĩa kiểu cho global để tránh lỗi any
+interface Global {
+  mongoose?: {
+    conn: mongoose.Mongoose | null;
+    promise: Promise<mongoose.Mongoose> | null;
+  };
+}
+
+// Khai báo biến global với kiểu cụ thể
+const globalWithMongoose = global as unknown as Global;
+
+const MONGODB_URI = process.env.NEXT_PUBLIC_MONGODB_URI || "";
 
 if (!MONGODB_URI) {
   throw new Error("⚠️ Bạn chưa cấu hình biến môi trường MONGODB_URI!");
 }
 
-let cached = (global as any).mongoose || { conn: null, promise: null };
+// Sử dụng const thay vì let vì cached không được gán lại
+const cached = globalWithMongoose.mongoose || { conn: null, promise: null };
 
 export async function connectDB() {
-  if (cached.conn) return cached.conn; 
+  if (cached.conn) return cached.conn;
 
   if (!cached.promise) {
     cached.promise = mongoose
       .connect(MONGODB_URI, {
-        dbName: "EMCDB", 
+        dbName: "EMCDB",
         bufferCommands: false,
       })
       .then((mongoose) => {
@@ -26,7 +38,7 @@ export async function connectDB() {
         process.exit(1);
       });
   }
-  
+
   cached.conn = await cached.promise;
   return cached.conn;
 }

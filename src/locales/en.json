@@ -71,7 +71,8 @@
     "invalid_user_data": "User data from Discord is invalid!",
     "server_error": "An error occurred on the server!",
     "no_auth": "No login permission!",
-    "unknown_error": "An unknown error occurred!",
+    "no_discord_auth": "User has been created but not logged in yet, please log in!",
+    "default_error": "An unknown error occurred!",
     "invalid_token": "What are you doing? Trying to fake admin access? Cook??!!",
     "invalid_signature": "Oh wow, why go through all that trouble faking a signature?!"
   },

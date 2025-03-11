@@ -1,6 +1,6 @@
 "use client";
 
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import {
@@ -16,7 +16,7 @@ import {
   BreadcrumbLink,
   BreadcrumbList,
   BreadcrumbSeparator,
-} from "@/components/ui/breadcrumb"; // Import từ shadcn
+} from "@/components/ui/breadcrumb";
 import { Search, Globe, User } from "lucide-react";
 import { useLocale } from "@/context/LocaleProvider";
 import { SidebarTrigger } from "./ui/sidebar";
@@ -24,7 +24,7 @@ import { useEffect, useState } from "react";
 import { jwtDecode } from "jwt-decode";
 import getDiscordAvatar from "@/utils/discord";
 import { useTranslations } from "next-intl";
-import { getCookie } from "@/lib/utils";
+import { deleteCookie, getCookie } from "@/lib/utils";
 
 const languages = [
   { code: "en", label: "English" },
@@ -33,6 +33,7 @@ const languages = [
 
 export function TopNav() {
   const pathname = usePathname();
+  const router = useRouter();
   const { locale, changeLocale } = useLocale();
   const [avatarUrl, setAvatarUrl] = useState("https://i.pravatar.cc/40");
   const t = useTranslations("ui");
@@ -54,10 +55,15 @@ export function TopNav() {
     }
   }, []);
 
+  const handleLogout = () => {
+    deleteCookie("auth_token");
+    router.push("/login");
+  };
+
   const breadcrumbs = pathname.split("/").filter(Boolean);
 
   return (
-    <div className="flex items-center justify-between p-4 border-b shadow-md bg-white">
+    <div className="flex items-center justify-between p-4 border-b rounded-md shadow-md bg-white">
       {/* BREADCRUMB */}
       <div className="flex items-center gap-2 text-sm text-gray-600">
         <SidebarTrigger />
@@ -65,9 +71,7 @@ export function TopNav() {
           <BreadcrumbList>
             {breadcrumbs.map((crumb, index) => (
               <BreadcrumbItem key={index}>
-                <BreadcrumbLink className="capitalize">
-                  {crumb}
-                </BreadcrumbLink>
+                <BreadcrumbLink className="capitalize">{crumb}</BreadcrumbLink>
                 {index < breadcrumbs.length - 1 && <BreadcrumbSeparator />}
               </BreadcrumbItem>
             ))}
@@ -78,7 +82,11 @@ export function TopNav() {
       {/* SEARCH BAR */}
       <div className="flex items-center gap-2 w-1/3">
         <Search className="w-5 h-5 text-gray-400" />
-        <Input type="text" placeholder={`${t("search")}...`} className="w-full" />
+        <Input
+          type="text"
+          placeholder={`${t("search")}...`}
+          className="w-full"
+        />
       </div>
 
       {/* LANGUAGE & PROFILE */}
@@ -118,7 +126,9 @@ export function TopNav() {
               <User className="w-4 h-4 mr-2" />
               {t("profile")}
             </DropdownMenuItem>
-            <DropdownMenuItem>{t("logout")}</DropdownMenuItem>
+            <DropdownMenuItem onClick={handleLogout}>
+              {t("logout")}
+            </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>
       </div>

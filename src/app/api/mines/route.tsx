@@ -17,7 +17,7 @@ const generateRandomResources = () => {
 
     // Điều chỉnh dropRate dựa trên rarity
     if (rarity === "Rare" || rarity === "Epic") {
-      dropRate = Math.floor(Math.random() * 3) + 1; // 1-10% cho Rare và Epic
+      dropRate = Math.floor(Math.random() * 1) + 1; // 1% cho Rare và Epic
     } else {
       dropRate = Math.floor(Math.random() * 100) + 1; // 1-100% cho Common và Uncommon
     }

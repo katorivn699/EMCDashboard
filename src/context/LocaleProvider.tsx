@@ -3,10 +3,17 @@
 import { NextIntlClientProvider } from "next-intl";
 import { createContext, useContext, useEffect, useState } from "react";
 
+// Định nghĩa kiểu cho messages
+type Messages = Record<string, string>;
 
-const LocaleContext = createContext({
+interface LocaleContextType {
+  locale: string;
+  changeLocale: (newLocale: string) => void;
+}
+
+const LocaleContext = createContext<LocaleContextType>({
   locale: "en",
-  changeLocale: (newLocale: string) => {},
+  changeLocale: (_newLocale: string) => {}, // Thêm _ để bỏ qua newLocale
 });
 
 export function useLocale() {
@@ -19,7 +26,7 @@ export default function LocaleProvider({
   children: React.ReactNode;
 }) {
   const [locale, setLocale] = useState("en"); // Mặc định là "en"
-  const [messages, setMessages] = useState<Record<string, any> | null>(null);
+  const [messages, setMessages] = useState<Messages | null>(null);
   const [loading, setLoading] = useState(true); // Thêm state loading
 
   useEffect(() => {
@@ -29,11 +36,14 @@ export default function LocaleProvider({
   }, []);
 
   const loadMessages = async (lang: string) => {
+    setLoading(true); // Bắt đầu tải
     try {
       const moduli = await import(`@/locales/${lang}.json`);
       setMessages(moduli.default);
     } catch (error) {
       console.error("Error loading locale:", error);
+    } finally {
+      setLoading(false); // Kết thúc tải
     }
   };
 
@@ -43,7 +53,7 @@ export default function LocaleProvider({
     loadMessages(newLocale);
   };
 
-  if (!messages)
+  if (loading || !messages) {
     return (
       <div className="flex justify-center items-center min-h-screen">
         <div className="flex space-x-2">
@@ -53,6 +63,7 @@ export default function LocaleProvider({
         </div>
       </div>
     );
+  }
 
   return (
     <LocaleContext.Provider value={{ locale, changeLocale }}>

@@ -2,7 +2,7 @@ import { NextResponse } from "next/server";
 import { connectDB } from "@/lib/mongodb";
 import { verifyToken } from "@/lib/auth";
 import { authenticateToken } from "@/middleware/auth";
-import UserCredit from "@/entity/UserCredit";
+import UserCredit, { IUserCredit } from "@/entity/UserCredit"; // Import IUserCredit
 
 export async function GET(req: Request) {
   try {
@@ -26,9 +26,9 @@ export async function GET(req: Request) {
     }
 
     const decoded = verifyToken(token);
-    const userId = decoded.id;
+    const userId = decoded?.id;
 
-    const user = await UserCredit.findOne({ userId }).lean();
+    const user = await UserCredit.findOne({ userId }).lean() as IUserCredit | null;
     if (!user) {
       // Trả về thông báo yêu cầu verify Discord và redirect về home
       return NextResponse.json(

@@ -1,16 +1,16 @@
 import { NextResponse } from "next/server";
 import { connectDB } from "@/lib/mongodb";
 import { verifyToken } from "@/lib/auth";
-import MinigameItem from "@/entity/MinigameItem";
+import MinigameItem, { IMinigameItem } from "@/entity/MinigameItem";
 import UserCredit from "@/entity/UserCredit";
-import PlayerInventory from "@/entity/PlayerInventory";
+import PlayerInventory, { IPlayerInventory, IToolItem } from "@/entity/PlayerInventory";
 import { authenticateToken } from "@/middleware/auth";
-
-// Kết nối database trước khi xử lý request
-await connectDB();
 
 export async function POST(req: Request) {
   try {
+    // Kết nối database trong hàm xử lý request
+    await connectDB();
+
     const { itemId } = await req.json();
     const authResult = authenticateToken(req, ["admin", "manager", "member"]);
     console.log("🚀 ~ POST ~ itemId:", itemId);
@@ -32,11 +32,11 @@ export async function POST(req: Request) {
       );
     }
 
-    const decoded = verifyToken(token);
-    const userId = decoded.id;
+    const decoded = token ? verifyToken(token) : null;
+    const userId = decoded?.id;
 
     // Tìm vật phẩm trong MinigameItem
-    const item = await MinigameItem.findById(itemId);
+    const item = (await MinigameItem.findById(itemId)) as IMinigameItem | null;
     console.log("🚀 ~ POST ~ item:", item);
     if (!item) {
       return NextResponse.json({ message: "Item not found" }, { status: 404 });
@@ -50,6 +50,7 @@ export async function POST(req: Request) {
         guildId: "default",
         eCredit: 1000, // Giá trị khởi tạo ban đầu
         achievements: [],
+        lastUpdated: new Date(),
       });
     }
 
@@ -68,11 +69,17 @@ export async function POST(req: Request) {
         playerId: userId,
         resources: [],
         tools: [],
+        lastUpdated: new Date(),
       });
     }
 
+    // Đảm bảo inventory không null trước khi tiếp tục
+    if (!inventory) {
+      throw new Error("Failed to initialize inventory"); // Trường hợp này không nên xảy ra
+    }
+
     // Kiểm tra xem công cụ đã sở hữu chưa
-    if (inventory.tools.some((tool) => tool.itemId === itemId)) {
+    if (inventory.tools.some((tool: IToolItem) => tool.itemId === item.itemId)) {
       return NextResponse.json(
         { message: "Item already owned" },
         { status: 400 }
@@ -81,10 +88,13 @@ export async function POST(req: Request) {
 
     // Trừ eCredit và thêm công cụ vào inventory với currentDurability
     user.eCredit -= item.sellValue;
+    user.lastUpdated = new Date(); // Cập nhật thời gian sau khi thay đổi
+
+    // Thêm công cụ mới (không cần _id vì Mongoose tự tạo khi lưu)
     inventory.tools.push({
       itemId: item.itemId,
-      currentDurability: item.durability, // Gán độ bền ban đầu từ MinigameItem
-    });
+      currentDurability: item.durability,
+    } as IToolItem); // Ép kiểu để khớp với IToolItem, _id sẽ được Mongoose thêm sau
     inventory.lastUpdated = new Date();
 
     // Lưu cả hai document

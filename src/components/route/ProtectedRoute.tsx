@@ -41,6 +41,7 @@ export default function ProtectedRoute({ children }: ProtectedRouteProps) {
             cookie.startsWith("login_error=")
           );
           const errorValue = errorCookie ? errorCookie.split("=")[1] : null;
+          console.log("🚀 ~ checkAuth ~ errorValue:", errorValue)
           
           // Xóa token
           document.cookie =
@@ -50,6 +51,7 @@ export default function ProtectedRoute({ children }: ProtectedRouteProps) {
           if (errorValue === "no_auth") message = t("no_token");
           if (errorValue === "invalid_token") message = t("invalid_token");
           if (errorValue === "invalid_signature") message = t("invalid_signature");
+          if (errorValue === "no_discord_auth") message = t("no_discord_auth");
 
           router.push("/login");
           return;

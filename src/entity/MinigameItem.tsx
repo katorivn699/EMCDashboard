@@ -1,7 +1,7 @@
 import { Schema, model, Document, models } from "mongoose";
 
 // Định nghĩa interface cho MinigameItem document
-interface IMinigameItem extends Document {
+export interface IMinigameItem extends Document {
   itemId: string;
   name: string;
   description: string;
@@ -13,35 +13,13 @@ interface IMinigameItem extends Document {
 
 // Schema MinigameItem
 const minigameItemSchema = new Schema<IMinigameItem>({
-  itemId: {
-    type: String,
-    required: true,
-  },
-  name: {
-    type: String,
-    required: true,
-  },
-  description: {
-    type: String,
-    required: true,
-  },
-  strength: {
-    type: Number,
-    required: true,
-    default: 3,
-  },
-  rarity: {
-    type: String,
-    required: true,
-  },
-  sellValue: {
-    type: Number,
-    required: true,
-  },
-  durability: {
-    type: Number,
-    required: true,
-  },
+  itemId: { type: String, required: true },
+  name: { type: String, required: true },
+  description: { type: String, required: true },
+  strength: { type: Number, required: true, default: 3 },
+  rarity: { type: String, required: true },
+  sellValue: { type: Number, required: true },
+  durability: { type: Number, required: true },
 });
 
 const MinigameItem =

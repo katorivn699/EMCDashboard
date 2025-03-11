@@ -1,6 +1,6 @@
 import { Schema, model, models, Document } from "mongoose";
 
-interface IUserAuthorization extends Document {
+export interface IUserAuthorization extends Document {
   userId: string;
   guildId: string;
   password: string;
